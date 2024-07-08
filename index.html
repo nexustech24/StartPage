@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+        }
+        .search-bar {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+        }
+        .search-bar input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-bar input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .search-bar input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .links {
+            margin: 20px;
+            padding: 20px;
+        }
+        .links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .links a:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .add-link-btn {
+            font-size: 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        .popup input[type="text"], .popup input[type="url"] {
+            width: calc(50% - 10px);
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        .popup input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .popup input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+        }
+        .link-item {
+            display: inline-block;
+            position: relative;
+            margin: 10px;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .link-item:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .link-item button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Welcome to Your Startpage
+    </header>
+    <div class="search-bar">
+        <form action="https://duckduckgo.com/?q=" method="get">
+            <input type="text" name="q" placeholder="Search DuckDuckgo...">
+            <input type="submit" value="Search">
+        </form>
+    </div>
+    <div class="links" id="links"></div>
+    <button class="add-link-btn" onclick="togglePopup()">+</button>
+    <div class="popup" id="popup">
+        <button class="popup-close" onclick="togglePopup()">x</button>
+        <form id="addLinkForm">
+            <input type="text" id="linkName" placeholder="Link Name" required>
+            <input type="url" id="linkURL" placeholder="Link URL" required>
+            <input type="submit" value="Add Link">
+        </form>
+    </div>
+    <script>
+        function togglePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function loadLinks() {
+            const links = JSON.parse(localStorage.getItem('links')) || [];
+            const linksContainer = document.getElementById('links');
+            linksContainer.innerHTML = '';
+            links.forEach((link, index) => {
+                const linkElement = document.createElement('div');
+                linkElement.className = 'link-item';
+                linkElement.innerHTML = `
+                    <a href="${link.url}" target="_blank">${link.name}</a>
+                    <button onclick="deleteLink(${index})">x</button>
+                `;
+                linksContainer.appendChild(linkElement);
+            });
+        }
+
+        function saveLink(name, url) {
+            const links = JSON.parse(localStorage.getItem('links')) || [];
+            links.push({ name, url });
+            localStorage.setItem('links', JSON.stringify(links));
+            loadLinks();
+        }
+
+        function deleteLink(index) {
+            const links = JSON.parse(localStorage.getItem('links')) || [];
+            links.splice(index, 1);
+            localStorage.setItem('links', JSON.stringify(links));
+            loadLinks();
+        }
+
+        document.getElementById('addLinkForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const linkName = document.getElementById('linkName').value;
+            const linkURL = document.getElementById('linkURL').value;
+
+            if (linkName && linkURL) {
+                saveLink(linkName, linkURL);
+
+                // Clear the form inputs
+                document.getElementById('linkName').value = '';
+                document.getElementById('linkURL').value = '';
+
+                togglePopup();  // Close the popup after adding the link
+            }
+        });
+
+        window.onload = loadLinks;
+    </script>
+</body>
+</html>
